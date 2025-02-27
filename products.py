@@ -2,7 +2,7 @@ class Product:
     def __init__(self, name, price, quantity, active= True):
         if not name:
             raise ValueError("Product name can not be empty.")
-        if price <= 0:
+        if price < 0:
             raise ValueError("price cannot be negative.")
         if quantity < 0:
             raise ValueError("Quantity cannot be negative.")
@@ -10,7 +10,7 @@ class Product:
         self.name = name
         self.price = price
         self.quantity = quantity
-        self.active = active
+        self.active = active if quantity > 0 else False
 
 
     def get_quantity(self):

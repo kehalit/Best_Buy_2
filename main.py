@@ -40,33 +40,65 @@ def start(store):
 
         if choice == 1:
             products = store.get_all_products()
-            for product in products:
-                print(f"Name: {product.name}, Price: {product.price}, Quantity: {product.quantity}")
+            if not products:
+                print("No active products available.")
+            else:
+                for product in products:
+                    print(f"Name: {product.name}, Price: {product.price}, Quantity: {product.quantity}")
         elif choice == 2:
             total_quantity = store.get_total_quantity()
             print(f"Total amount of products in store: {total_quantity}")
         elif choice == 3:
+            shopping_list = []
+            print("Enter products to buy (name and quantity). Type 'done' to finish.")
 
-            try:
-                shopping_list = []
-                print("Enter products to buy (name and quantity). Type 'done' to finish.")
+            product_stock = {p.name: p.quantity for p in store.get_all_products()}
+
+            while True:
+                product_name = input("Enter product name: ").strip()
+                if product_name.lower() == 'done' or product_name == '':
+                    break
+
+                if product_name not in product_stock:
+                    print(f"Product '{product_name}' not found. Please try again.")
+                    continue
+
                 while True:
-                    product_name = input("Enter product name: ")
-                    if product_name.lower() == 'done':
-                        break
-                    quantity = int(input(f"Enter quantity of {product_name}: "))
-                    products = store.get_all_products()  # Correct method call on the instance
-                    product = next((p for p in products if p.name == product_name), None)
-                    if product:
-                        shopping_list.append((product, quantity))
-                    else:
-                        print(f"Product '{product_name}' not found.")
+                    quantity_input = input(f"Enter quantity of {product_name}: ").strip()
 
-                if shopping_list:
-                    total_price = store.order(shopping_list)  # Correct method call on the instance
+                    if quantity_input.lower() == 'done':
+                        print("Returning to product selection.")
+                        break  # Go back to product selection
+
+                    if not quantity_input.isdigit():
+                        print("Please enter a valid numeric quantity.")
+                        continue
+
+                    quantity = int(quantity_input)
+
+                    if quantity <= 0:
+                        print("Quantity must be greater than zero.")
+                        continue
+
+                    if quantity > product_stock[product_name]:
+                        print(f"Not enough stock for {product_name}. Order cannot be completed. Try again.")
+                        continue  # Retry asking for quantity
+
+                    product_stock[product_name] -= quantity
+
+                    product = next(p for p in store.get_all_products() if p.name == product_name)
+                    shopping_list.append((product, quantity))
+                    break  # Exit quantity loop and return to product selection
+
+            if shopping_list:
+                try:
+                    total_price = store.order(shopping_list)
                     print(f"Total price of your order: ${total_price:.2f}")
-            except Exception as e:
-                print(f"Error in placing order: {e}")
+                except ValueError as e:
+                    print(f"Order Error: {e}")
+
+            continue  # Return to menu after completing order
+
         elif choice == 4:
             print("Thank you for visiting! Goodbye!")
             break
@@ -76,3 +108,13 @@ def start(store):
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
