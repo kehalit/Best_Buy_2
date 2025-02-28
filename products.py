@@ -62,17 +62,52 @@ class Product:
 
         return total_price
 
+
+class NonStockedProduct(Product):
+    def __init__(self, name , price):
+        super().__init__(name, price, quantity=0)
+
+    def buy(self, quantity):
+        return quantity * self.price
+
+
+    def show(self):
+        return f"{self.name} (None-Stocked), Price:{self.price}"
+
+
+class LimitedProduct(Product):
+    def __init__(self, name, price, quantity,  maximum):
+        super().__init__(name, price, quantity)
+        self.maximum = maximum
+
+
+    def buy(self, quantity):
+        if quantity > self.maximum:
+            raise ValueError(f"Cannot buy more than {self.maximum} per order.")
+        return super().buy(quantity)
+
+
+    def show(self):
+        return f"{self.name} (Limited: Max {self.maximum} per order), Price: {self.price}, Quantity: {self.quantity}"
+
+
 def main():
 
     bose = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
     mac = Product("MacBook Air M2", price=1450, quantity=100)
+    win = NonStockedProduct("Windows License", price=125)
+    ship = LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
 
-    print(bose.buy(50))
-    print(mac.buy(100))
-    print(mac.is_active())
+   # print(bose.buy(50))
+   # print(mac.buy(100))
+   # print(mac.is_active())
 
-    bose.show()
-    mac.show()
+    print(win.buy(50))
+    print(ship.buy(1))
+    print(win.is_active())
+
+    win.show()
+    ship.show()
 
     bose.set_quantity(1000)
     bose.show()
