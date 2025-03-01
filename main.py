@@ -1,5 +1,6 @@
 from products import Product, NonStockedProduct, LimitedProduct
 from store import Store
+from promotion import PercentageDiscount, SecondItemHalfPrice, BuyTwoGetOneFree
 
 
 def main():
@@ -11,6 +12,16 @@ def main():
         NonStockedProduct("Windows License", price=125),
         LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
     ]
+
+    # Create Promotions
+    discount_20 = PercentageDiscount("20% Off", 20)
+    half_price_promo = SecondItemHalfPrice("Second Item 50% Off")
+    bogo_promo = BuyTwoGetOneFree("Buy 2, Get 1 Free")
+
+    # Assign promotions to products
+    product_list[0].set_promotion(discount_20)  # MacBook Air M2 - 20% Off
+    product_list[1].set_promotion(half_price_promo)  # Bose Earbuds - Second Item 50% Off
+    product_list[4].set_promotion(bogo_promo)  # Shipping - Buy 2, Get 1 Free
 
     """Create the Store instance"""
     best_buy = Store()
@@ -27,7 +38,7 @@ def start(store):
     """Accept store as a parameter"""
     while True:
         # Show the menu
-        print("Store Menu")
+        print("\nStore Menu")
         print("----------")
         print("1. List all products in store")
         print("2. Show total amount in store")
@@ -37,7 +48,7 @@ def start(store):
         try:
             choice = int(input("Please choose a number: "))
         except ValueError:
-            print("Invalid choice. Please choose a valid option.")
+            print("Invalid choice. Please enter a number.")
             continue
 
         if choice == 1:
@@ -45,32 +56,44 @@ def start(store):
             if not products:
                 print("No active products available.")
             else:
-                for product in products:
-                    print(f"Name: {product.name}, Price: {product.price}, Quantity: {product.quantity}")
+                print("\nAvailable Products:")
+                for i, product in enumerate(products, start=1):
+                    print(f"{i}. {product.show()}")  # Now products are numbered
+
         elif choice == 2:
             total_quantity = store.get_total_quantity()
             print(f"Total amount of products in store: {total_quantity}")
+
         elif choice == 3:
             shopping_list = []
-            print("Enter products to buy (name and quantity). Type 'done' to finish.")
+            products = store.get_all_products()
 
-            product_stock = {p.name: p.quantity for p in store.get_all_products()}
+            if not products:
+                print("No products available for purchase.")
+                continue
+
+            print("\nAvailable Products:")
+            for i, product in enumerate(products, start=1):
+                print(f"{i}. {product.show()}")
 
             while True:
-                product_name = input("Enter product name: ").strip()
-                if product_name.lower() == 'done' or product_name == '':
+                product_input = input("Enter product # (or 'done' to finish): ").strip()
+
+                if product_input.lower() == 'done' or product_input == '':
                     break
 
-                if product_name not in product_stock:
-                    print(f"Product '{product_name}' not found. Please try again.")
+                if not product_input.isdigit() or not (1 <= int(product_input) <= len(products)):
+                    print("Invalid product number. Please try again.")
                     continue
 
+                product_index = int(product_input) - 1
+                product = products[product_index]
+
                 while True:
-                    quantity_input = input(f"Enter quantity of {product_name}: ").strip()
+                    quantity_input = input(f"Enter quantity for {product.name}: ").strip()
 
                     if quantity_input.lower() == 'done':
-                        print("Returning to product selection.")
-                        break  # Go back to product selection
+                        break  # Return to product selection
 
                     if not quantity_input.isdigit():
                         print("Please enter a valid numeric quantity.")
@@ -82,15 +105,13 @@ def start(store):
                         print("Quantity must be greater than zero.")
                         continue
 
-                    if quantity > product_stock[product_name]:
-                        print(f"Not enough stock for {product_name}. Order cannot be completed. Try again.")
+                    if quantity > product.get_quantity():
+                        print(f"Not enough stock for {product.name}. Available: {product.get_quantity()}. Try again.")
                         continue  # Retry asking for quantity
 
-                    product_stock[product_name] -= quantity
-
-                    product = next(p for p in store.get_all_products() if p.name == product_name)
+                    # Add to shopping list
                     shopping_list.append((product, quantity))
-                    break  # Exit quantity loop and return to product selection
+                    break
 
             if shopping_list:
                 try:
@@ -99,7 +120,7 @@ def start(store):
                 except ValueError as e:
                     print(f"Order Error: {e}")
 
-            continue  # Return to menu after completing order
+            continue
 
         elif choice == 4:
             print("Thank you for visiting! Goodbye!")
@@ -110,13 +131,3 @@ def start(store):
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
