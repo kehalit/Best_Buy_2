@@ -56,8 +56,7 @@ class Product:
         self.active = False
 
     def show(self):
-        """Returns a string representation of the product including its name, price,
-        quantity, and promotion (if any)."""
+        """Returns a string representation of the product including its name, price,quantity, and promotion (if any)."""
         promo_text = f", Promotion: {self.promotion.name}" if self.promotion else ""
         return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}{promo_text}"
 
