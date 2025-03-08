@@ -79,6 +79,10 @@ class NonStockedProduct(Product):
         """Initializes a non-stocked product with a name and price."""
         super().__init__(name, price, quantity=0)
 
+    def is_active(self):
+        """Non-stocked products should always be active."""
+        return True
+
     def buy(self, quantity):
         """Processes a purchase of the given quantity and returns the total price."""
         return quantity * self.price
