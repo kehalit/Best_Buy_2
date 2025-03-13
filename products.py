@@ -34,7 +34,7 @@ class Product:
 
     def set_promotion(self, promotion):
         """Sets a promotion for the product."""
-        from promotion import Promotion  # Import inside the method to avoid circular import
+        from promotion import Promotion  # Avoid circular import
         if not isinstance(promotion, Promotion):
             raise TypeError("Invalid promotion type.")
         self.promotion = promotion
@@ -56,9 +56,15 @@ class Product:
         self.active = False
 
     def show(self):
-        """Returns a string representation of the product including its name, price,quantity, and promotion (if any)."""
-        promo_text = f", Promotion: {self.promotion.name}" if self.promotion else ""
-        return f"{self.name}, Price: {self.price}, Quantity: {self.quantity}{promo_text}"
+        """Returns a string representation of the product including its name, price, quantity, and promotion (if any)."""
+        quantity_str = "Unlimited" if isinstance(self, NonStockedProduct) else self.quantity
+        promotion_str = self.promotion.name if self.promotion else "None"
+
+        if isinstance(self, LimitedProduct):
+            return (f"{self.name}, Price: ${self.price}, Quantity: {quantity_str}, "
+                    f"Limited to {self.maximum} per order!, Promotion: {promotion_str}")
+
+        return f"{self.name}, Price: ${self.price}, Quantity: {quantity_str}, Promotion: {promotion_str}"
 
     def buy(self, quantity):
         """Processes a purchase of the given quantity of the product and returns the total price."""
@@ -67,7 +73,8 @@ class Product:
         if quantity > self.quantity:
             raise ValueError("Not enough stock available.")
 
-        total_price = self.promotion.apply_promotion(self, quantity) if self.promotion else self.price * quantity
+        total_price = (self.promotion.apply_promotion(self, quantity)
+                       if self.promotion else self.price * quantity)
         self.set_quantity(self.quantity - quantity)
         return total_price
 
@@ -85,45 +92,59 @@ class NonStockedProduct(Product):
 
     def buy(self, quantity):
         """Processes a purchase of the given quantity and returns the total price."""
-        return quantity * self.price
+        if quantity <= 0:
+            raise ValueError("Quantity to buy must be greater than zero.")
+        return (self.promotion.apply_promotion(self, quantity)
+                if self.promotion else quantity * self.price)
 
     def show(self):
         """Returns a string representation of the non-stocked product."""
-        return f"{self.name} (Non-Stocked), Price: {self.price}"
+        promotion_str = self.promotion.name if self.promotion else "None"
+        return f"{self.name}, Price: ${self.price}, Quantity: Unlimited, Promotion: {promotion_str}"
 
 
 class LimitedProduct(Product):
-
+    """Represents a product with a purchase limit per order."""
 
     def __init__(self, name, price, quantity, maximum):
-        """Represents a product with a purchase limit per order."""
+        """Initializes the limited product."""
         super().__init__(name, price, quantity)
+        if maximum <= 0:
+            raise ValueError("Maximum per order must be greater than zero.")
         self.maximum = maximum
 
     def buy(self, quantity):
         """Processes a purchase of the given quantity, enforcing the maximum purchase limit."""
+        if quantity <= 0:
+            raise ValueError("Quantity to buy must be greater than zero.")
         if quantity > self.maximum:
             raise ValueError(f"Cannot buy more than {self.maximum} per order.")
         return super().buy(quantity)
 
     def show(self):
         """Returns a string representation of the limited product."""
-        return f"{self.name} (Limited: Max {self.maximum} per order), Price: {self.price}, Quantity: {self.quantity}"
+        promotion_str = self.promotion.name if self.promotion else "None"
+        return (f"{self.name}, Price: ${self.price}, Quantity: {self.quantity}, "
+                f"Limited to {self.maximum} per order!, Promotion: {promotion_str}")
 
 
-# Testing the functionality
+# Optional testing section
 if __name__ == "__main__":
+    # Regular Product
     bose = Product("Bose QuietComfort Earbuds", price=250, quantity=500)
-    mac = Product("MacBook Air M2", price=1450, quantity=100)
+    print(bose.show())
+
+    # Non-stocked Product
     win = NonStockedProduct("Windows License", price=125)
-    ship = LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
-
-    print(win.buy(50))
-    print(ship.buy(1))
-    print(win.is_active())
-
     print(win.show())
+
+    # Limited Product
+    ship = LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
     print(ship.show())
 
-    bose.set_quantity(1000)
-    print(bose.show())
+    # Buying examples
+    print("Buying Bose Earbuds:", bose.buy(2))  # Should subtract quantity
+    print("Remaining Bose quantity:", bose.get_quantity())
+
+    print("Buying Windows License:", win.buy(5))
+    print("Buying Shipping:", ship.buy(1))
