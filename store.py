@@ -3,7 +3,6 @@ from products import Product,NonStockedProduct
 
 class Store:
     """Represents a store that holds and manages products."""
-
     def __init__(self):
         """Initializes an empty store with a list of products."""
         self.products = []
@@ -45,21 +44,6 @@ class Store:
 
         return total_price
 
-
-def main():
-    """Creates a store, adds products, and tests store functionalities."""
-    product_list = [Product("MacBook Air M2", price=1450, quantity=100),
-                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                    Product("Google Pixel 7", price=500, quantity=250),
-                    ]
-
-    best_buy = Store()
-    for product in product_list:
-        best_buy.add_product(product)
-
-    # Test methods
-    print("Total quantity in store:", best_buy.get_total_quantity())  # Total quantity of all products
-    print("Order total price:", best_buy.order([(product_list[0], 1), (product_list[1], 2)]))  # Example order
 
 
 if __name__ == "__main__":

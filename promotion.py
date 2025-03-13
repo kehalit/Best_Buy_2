@@ -5,11 +5,9 @@ class Promotion(ABC):
     def __init__(self, name):
         self.name = name
 
-
     @abstractmethod
     def apply_promotion(self, product, quantity):
         pass
-
 
 class PercentageDiscount(Promotion):
     def __init__(self, name, discount_percent):
@@ -19,17 +17,16 @@ class PercentageDiscount(Promotion):
 
         self.discount_percent = discount_percent
 
-
     def apply_promotion(self, product, quantity):
         if quantity <= 0:
             raise ValueError("Quantity must be greater than zero.")
         discount = product.price * (self.discount_percent / 100)
         return (product.price - discount) * quantity
 
+
 class SecondItemHalfPrice(Promotion):
     def __init__(self, name):
         super().__init__(name)
-
 
     def apply_promotion(self, product, quantity):
         full_price_items = quantity // 2 + quantity % 2
