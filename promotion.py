@@ -14,13 +14,17 @@ class Promotion(ABC):
 class PercentageDiscount(Promotion):
     def __init__(self, name, discount_percent):
         super().__init__(name)
+        if not (0 <= discount_percent <= 100):
+            raise ValueError("Discount percent must be between 0 and 100.")
+
         self.discount_percent = discount_percent
 
 
     def apply_promotion(self, product, quantity):
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero.")
         discount = product.price * (self.discount_percent / 100)
         return (product.price - discount) * quantity
-
 
 class SecondItemHalfPrice(Promotion):
     def __init__(self, name):

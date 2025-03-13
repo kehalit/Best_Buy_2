@@ -86,6 +86,9 @@ class NonStockedProduct(Product):
         """Initializes a non-stocked product with a name and price."""
         super().__init__(name, price, quantity=0)
 
+    def get_quantity(self):
+        return float('inf')
+
     def is_active(self):
         """Non-stocked products should always be active."""
         return True
@@ -94,8 +97,10 @@ class NonStockedProduct(Product):
         """Processes a purchase of the given quantity and returns the total price."""
         if quantity <= 0:
             raise ValueError("Quantity to buy must be greater than zero.")
-        return (self.promotion.apply_promotion(self, quantity)
-                if self.promotion else quantity * self.price)
+        if self.promotion:
+            return self.promotion.apply_promotion(self, quantity)
+
+        return quantity * self.price
 
     def show(self):
         """Returns a string representation of the non-stocked product."""

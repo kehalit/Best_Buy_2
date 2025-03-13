@@ -1,6 +1,6 @@
 from itertools import product
-import pytest
-from products import Product
+import unittest
+from ..products import Product
 
 
 def test_create_valid_product():

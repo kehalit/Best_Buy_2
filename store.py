@@ -1,4 +1,4 @@
-from products import Product
+from products import Product,NonStockedProduct
 
 
 class Store:
@@ -18,10 +18,12 @@ class Store:
 
     def get_total_quantity(self):
         """Calculates and returns the total quantity of all products in the store."""
-        total_quantity = 0
+        total = 0
         for product in self.products:
-            total_quantity += product.get_quantity()
-        return total_quantity
+            if isinstance(product, NonStockedProduct):  # Skip NonStockedProduct for quantity
+                continue  # Skip products with unlimited stock
+            total += product.get_quantity()
+        return total
 
     def get_all_products(self):
         """Returns a list of all active products in the store."""
