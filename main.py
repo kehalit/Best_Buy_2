@@ -14,14 +14,14 @@ def main():
     ]
 
     # Create Promotions
-    discount_20 = PercentageDiscount("30% Off", 20)
+    discount_30 = PercentageDiscount("30% Off", 30)
     half_price_promo = SecondItemHalfPrice("Second Half Price!")
     bogo_promo = BuyTwoGetOneFree("Third one Free!")
 
     # Assign promotions to products
     product_list[0].set_promotion(half_price_promo)
     product_list[1].set_promotion(bogo_promo)
-    product_list[3].set_promotion(discount_20)
+    product_list[3].set_promotion(discount_30)
 
     """Create the Store instance"""
     best_buy = Store()
