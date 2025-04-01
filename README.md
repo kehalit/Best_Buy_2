@@ -42,5 +42,5 @@ To run this project, you'll need Python 3.x installed. The program also depends 
 
     - BuyTwoGetOneFree: A promotion where the third item in a set of three is free.
 
--main.py: The entry point of the program, which initializes the store with products, sets promotions, and provides the interactive menu for the user.
+- main.py: The entry point of the program, which initializes the store with products, sets promotions, and provides the interactive menu for the user.
 
